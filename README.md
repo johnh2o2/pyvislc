@@ -1,9 +1,22 @@
-##Automated classification of variable stars in the HAT fields
+#Pyvislc: Visualize lighrcurves
 
-This repository includes
+* **PyVislc** is currently only setup to read in lightcurves that are formatted like HAT lightcurves. PyVislc will be more generalized in later versions. 
 
-* *vislc.py*: a Tkinter/matplotlib python script that allows you to interactively analyze HAT lightcurves
-* *gcvs.py*: a primitive python module that parses the General Catalog of Variable Stars
-* *lsp.py*: A python module that calculates Lomb-Scargle periodograms
+##Installation
 
-More information will be added later.
+* Run `python setup.py install`.
+
+##Usage
+
+* To visualize a lightcurve stored in `<file>`, run:
+
+`python /path/to/vislc.py --file <file>`
+
+* To visualize several lightcurves, store the list of filepaths in a separate file (`<listfile>`), and then run:
+
+`python /path/to/vislc.py --list <listfile`
+
+* You can optionally specify your own flags and the path of an output file for you to store the results; for example:
+
+`python /path/to/vislc.py --list <listfile> --logfile <logfile> --flags flag1/keyboardshortcut1 flag2/keyboardshortcut2 ...`
+

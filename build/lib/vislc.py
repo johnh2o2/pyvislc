@@ -1143,10 +1143,7 @@ class Visualizer:
             cant_set_raw = False
             lc_is_none = False
             if file_exists:
-                print self.lc_files[self.lc_index]
-                rhlc.read_hatlc(self.lc_files[self.lc_index])
                 try:
-
                     self.lc = rhlc.read_hatlc(self.lc_files[self.lc_index])
                 except:
                     unreadible = True
