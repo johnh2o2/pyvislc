@@ -1,4 +1,4 @@
-#Pyvislc: Visualize lighrcurves
+#Pyvislc: Visualize (HAT) lightcurves
 
 * **PyVislc** is currently only setup to read in lightcurves that are formatted like HAT lightcurves. PyVislc will be more generalized in later versions. 
 

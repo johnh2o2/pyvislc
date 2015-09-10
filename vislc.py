@@ -986,7 +986,7 @@ def isclosed(window):
 
 
 class Visualizer:
-    def __init__(self, master, lcs=None, lc_index=0, logfile=None, flag_shortcuts=None, flags=None):
+    def __init__(self, master, lcs=None, lc_index=0, logfile=None, flag_shortcuts=None, flags=None, jah=False):
         self.comments = ""
 
         if logfile is None:
@@ -1012,6 +1012,7 @@ class Visualizer:
         self.master = master
         self.flag_shortcuts = flag_shortcuts
         self.flags = flags
+        self.jah = jah
 
         if self.flag_shortcuts is None: self.flag_shortcuts = {}
         if self.flags is None: self.flags = []
@@ -1144,10 +1145,10 @@ class Visualizer:
             lc_is_none = False
             if file_exists:
                 print self.lc_files[self.lc_index]
-                rhlc.read_hatlc(self.lc_files[self.lc_index])
+                rhlc.read_hatlc(self.lc_files[self.lc_index], jah=self.jah)
                 try:
 
-                    self.lc = rhlc.read_hatlc(self.lc_files[self.lc_index])
+                    self.lc = rhlc.read_hatlc(self.lc_files[self.lc_index], jah=self.jah)
                 except:
                     unreadible = True
                 if not unreadible:
