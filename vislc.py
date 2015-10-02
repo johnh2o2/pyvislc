@@ -97,12 +97,37 @@ def ax_phase_folded(ax, t, y, opts):
     """
     invert_y = True
     if 'invert' in opts: invert_y = opts['invert']
+    ax.scatter(t, y, label="P=%.4f days"%(opts['period']),c='b'
+        ,alpha=defaults.settings['alpha'], marker=SCATTER_MARKER)
     if defaults.settings['bin-phase']:
-        ax.plot(t, y, label="P=%.4f days"%(opts['period']),color='b',lw=2)
-        ax.fill_between(t, y-opts['yerr'],y+opts['yerr'],facecolor='b',alpha=defaults.settings['alpha'])
-    else:
-        ax.scatter(t, y, label="P=%.4f days"%(opts['period']),c='b'
-            ,alpha=defaults.settings['alpha'], marker=SCATTER_MARKER)
+        xbin = opts['xval']
+        ybin = opts['yval']
+        yerr = opts['yerr']
+        XBINS, YBINS, ERRBINS = [], [],[]
+
+        XBIN, YBIN, ERRBIN = [], [],[]
+
+        for X,Y,E in zip(xbin,ybin,yerr):
+            #print X, Y, E
+            if Y == 0:
+                if len(XBIN) > 0:
+                    XBINS.append(XBIN)
+                    YBINS.append(YBIN)
+                    ERRBINS.append(ERRBIN)
+                    XBIN, YBIN, ERRBIN = [],[],[]
+            elif Y > 0:
+                XBIN.append(X)
+                YBIN.append(Y)
+                ERRBIN.append(E)
+        if len(XBIN) > 0:
+            XBINS.append(XBIN)
+            YBINS.append(YBIN)
+            ERRBINS.append(ERRBIN)
+
+        for Xb, Yb, Eb in zip(XBINS, YBINS, ERRBINS):
+            #print " - bin (length = %d)"%(len(Xb))
+            ax.plot(Xb, Yb, label="P=%.4f days"%(opts['period']),color='r',lw=2)
+            ax.fill_between(Xb, np.array(Yb) - np.array(Eb), np.array(Yb) + np.array(Eb),facecolor='r',alpha=defaults.settings['alpha'])
     
     ax.set_ylabel(opts['ylabel'])
     ax.set_xlabel("Phase")
@@ -985,7 +1010,7 @@ def isclosed(window):
     return False
 
 
-class Visualizer:
+class Visualizer(object):
     def __init__(self, master, lcs=None, lc_index=0, logfile=None, flag_shortcuts=None, flags=None, jah=False):
         self.comments = ""
 
@@ -1043,6 +1068,8 @@ class Visualizer:
         self.lc_files = lcs_unflagged 
         self.lc_files.extend(lcs_flagged)
         self.file_list_window = FileList(self)
+
+        self.phase_plot_axis_function = ax_phase_folded
         
         # Set up frames
         self.raw_plot_frame = Frame(master,bd=1)#,relief='sunken')
@@ -1093,8 +1120,18 @@ class Visualizer:
             self.period = period
         elif not self.initialized:
             self.period = self.best_period
-        self.phases, self.phase_mags, errs = phase_fold(self.t,self.y,self.period,nbins=self.nbins, phase_offset=self.phase_offset)
-        self.opts_phase_folded = { 'plot' : ax_phase_folded, 'yerr' : errs, 'period' : self.period, 'ylabel' : self.ytype}
+        if defaults.settings['bin-phase']:
+            self.phases, self.phase_mags,self.binned_phases, self.binned_mags, errs = phase_fold(self.t,self.y,self.period,nbins=self.nbins, phase_offset=self.phase_offset)
+        else:
+            self.phases, self.phase_mags, errs = phase_fold(self.t,self.y,self.period,nbins=self.nbins, phase_offset=self.phase_offset)
+            self.binned_phases, self.binned_mags = None, None
+        self.opts_phase_folded = { 'plot' : self.phase_plot_axis_function , 
+                                    'yerr' : errs, 
+                                    'period' : self.period, 
+                                    'ylabel' : self.ytype, 
+                                    'yval' : self.phase_mags, 
+                                    'xval': self.binned_phases, 
+                                    'visualizer' : self}  
         if self.initialized:
             self.phase_plot.replot( self.phases, self.phase_mags, options = self.opts_phase_folded)
 
@@ -1311,7 +1348,9 @@ class Visualizer:
         fig.text(0.7, 0.92, hid, fontproperties=FontProperties(family='sans-serif', weight='bold', size=14))
         ax_lomb_scargle(ax_lsp, self.periods, self.lsp_powers, self.opts_ls)
         ax_raw_lc(ax_raw, self.t, self.y, self.opts_raw )
-        ax_phase_folded(ax_pf, self.phases, self.phase_mags, self.opts_phase_folded)
+        self.phase_plot_axis_function(ax_pf, self.phases, self.phase_mags, self.opts_phase_folded)
+        ax_pf.invert_yaxis()
+        #ax_phase_folded(ax_pf, self.phases, self.phase_mags, self.opts_phase_folded)
         fig.text(0.7, 0.9, txt,family = 'monospace', ha='left', va='top')
         #ax_info.set_axis_off()
         fig.set_tight_layout(True)

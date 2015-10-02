@@ -5,7 +5,7 @@ settings = {
 	'time-type' : 'BJD',
 	'logfile' : 'hatvislog.dat',
 	'na-str' : '---',
-	'nbins' : 300,
+	'nbins' : 25,
 	'dphase' : 0.05,
 	'peaks-dn' : 5,
 	'label-font' : ( "Helvetica", 14, "bold" ),
@@ -18,6 +18,6 @@ settings = {
 	'n-peaks' : 5,
 	'alpha' : 0.3,
 	'bin-phase' : False,
-	'remove-outliers' : True,
+	'remove-outliers' : False,
 	'outlier-sigma' : 3.0
 }

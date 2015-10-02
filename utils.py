@@ -33,7 +33,7 @@ def encode(arr):
     for i in range(0,len(cats)):
         trans[cats[i]] = codes[i]
     return cats, np.array([ trans[c] for c in arr ])
-def phase_fold(t,y,T,phase_offset=0, bin=defaults.settings['bin-phase'], 
+def phase_fold(t,y,T,phase_offset=0, binning=defaults.settings['bin-phase'], 
     nbins=10, remove_outliers=defaults.settings['remove-outliers'], 
     outlier_limit=defaults.settings['outlier-sigma']):
     """ Given a period (T), phase-folds the (t,y) data and bins the results.
@@ -50,7 +50,8 @@ def phase_fold(t,y,T,phase_offset=0, bin=defaults.settings['bin-phase'],
         return DT
 
     # Make a record array, then sort by phase
-    pf = np.zeros(len(t), dtype=np.dtype([('phase', np.float_) , ('mag', np.float_)]))
+    pfdt = np.dtype([('phase', np.float_) , ('mag', np.float_)])
+    pf = np.zeros(len(t), dtype=pfdt)
     for i,tv in enumerate(t):
         ph = phase(tv)
         pf[i]['phase'] = ph 
@@ -58,7 +59,7 @@ def phase_fold(t,y,T,phase_offset=0, bin=defaults.settings['bin-phase'],
     pf = np.sort(pf,order='phase')
     
     # If we aren't binning, return the results
-    if not bin: return pf['phase'],pf['mag'], None
+    if not binning: return pf['phase'],pf['mag'], None
 
     dt = 1./nbins
 
@@ -105,7 +106,12 @@ def phase_fold(t,y,T,phase_offset=0, bin=defaults.settings['bin-phase'],
                 else: outliers += 1
             pf = pf_new
         else: outliers = 0
-    return phases, binned_values, errs
+    PF = np.zeros(len(pf), dtype=pfdt)
+    for i in range(len(pf)):
+        PF[i]['phase'] = pf[i]['phase']
+        PF[i]['mag'] = pf[i]['mag']
+    pf = PF
+    return pf['phase'], pf['mag'], phases, binned_values, errs
 def fetch_lcs(hatids):
     i = 0
     lh = len(hatids)

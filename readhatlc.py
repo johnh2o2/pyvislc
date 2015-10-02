@@ -203,7 +203,8 @@ def read_hatlc(hatlc, jah=True):
             print hatlc, "DOES NOT EXIST"
             return None
         lc = pickle.load(gzip.open(hatlc, 'rb'))
-        print lc
+        if not 'hatid' in lc:
+            lc['hatid'] = 'NOT SPECIFIED'
         return lc 
 
     lcfname = os.path.basename(hatlc)
